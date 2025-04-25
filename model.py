@@ -34,7 +34,7 @@ from .rich_logging import activations_logger, enable_activations_logging
 import logging
 from tqdm import tqdm
 
-from attention import MHA
+from .attention import MHA
 
 try:
     from vortex.model.positional_embeddings import swap_mha_rope
