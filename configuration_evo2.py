@@ -119,6 +119,19 @@ class Evo2Config(PretrainedConfig):
     # purposes
     # def to_dict(self):
     #     return {attr: getattr(self, attr) for attr in self.__dict__}
+    def to_dict(self):
+        """
+        Serializes this instance to a Python dictionary. Override the default
+        to explicitly remove the '__class__' key, which is not JSON-serializable.
+        """
+        # Call the parent implementation first to get the base dictionary
+        output = super().to_dict()
+
+        # Remove the problematic key if it exists
+        if "__class__" in output:
+            del output["__class__"]
+
+        return output
 
     @classmethod
     def from_original_config(cls, config_path: str, **kwargs):
