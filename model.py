@@ -637,45 +637,45 @@ class StripedHyena(nn.Module):
         self.block_idx_to_device = {}
 
         # Calculate layers per GPU
-        num_gpus = torch.cuda.device_count() if torch.cuda.is_available() else 1
-        layers_per_gpu = math.ceil(config.num_layers / num_gpus)
-        self.logger.info(f"Distributing across {num_gpus} GPUs, approximately {layers_per_gpu} layers per GPU")
+        # num_gpus = torch.cuda.device_count() if torch.cuda.is_available() else 1
+        # layers_per_gpu = math.ceil(config.num_layers / num_gpus)
+        # self.logger.info(f"Distributing across {num_gpus} GPUs, approximately {layers_per_gpu} layers per GPU")
 
-        for layer_idx in tqdm(range(config.num_layers)):
-            # Determine which GPU should handle this layer
-            device_idx = min(layer_idx // layers_per_gpu, num_gpus - 1)
-            device = f"cuda:{device_idx}" if torch.cuda.is_available() else "cpu"
+        # for layer_idx in tqdm(range(config.num_layers)):
+        #     # Determine which GPU should handle this layer
+        #     device_idx = min(layer_idx // layers_per_gpu, num_gpus - 1)
+        #     device = f"cuda:{device_idx}" if torch.cuda.is_available() else "cpu"
 
-            with torch.device(device):
-                # TELinear uses `device="cuda"` device to allocate empty bias
-                # tensor. This makes sure that the empty tensor is allocated on the
-                # correct device. (torch.device(), unlike torch.cuda.device(),
-                # doesn't override current CUDA device.)
-                with torch.cuda.device(device):
-                    block = get_block(config, layer_idx, flash_fft=self.flash_fft)
-                    move_to_device(block, device)
+        #     with torch.device(device):
+        #         # TELinear uses `device="cuda"` device to allocate empty bias
+        #         # tensor. This makes sure that the empty tensor is allocated on the
+        #         # correct device. (torch.device(), unlike torch.cuda.device(),
+        #         # doesn't override current CUDA device.)
+        #         with torch.cuda.device(device):
+        #             block = get_block(config, layer_idx, flash_fft=self.flash_fft)
+        #             move_to_device(block, device)
 
-            self.blocks.append(block)
-            self.block_idx_to_device[layer_idx] = device
-            self.logger.info(f"Assigned {layer_idx=} to {device=}")
-            self.logger.info(
-                f"Parameter count for block {layer_idx}: {sum(p.numel() for p in self.blocks[-1].parameters())}"
-            )
+        #     self.blocks.append(block)
+        #     self.block_idx_to_device[layer_idx] = device
+        #     self.logger.info(f"Assigned {layer_idx=} to {device=}")
+        #     self.logger.info(
+        #         f"Parameter count for block {layer_idx}: {sum(p.numel() for p in self.blocks[-1].parameters())}"
+        #     )
 
-        with torch.device(self.block_idx_to_device[0]):
-            with torch.cuda.device(self.block_idx_to_device[0]):
-                self.norm = RMSNorm(config) if config.get("final_norm", True) else None
-                if config.tie_embeddings:
-                    # Lambda usage is to be able to use forward() on caller side, which in
-                    # turn is needed for PyTorch hooks to work properly.
-                    self.unembed = Lambda(self.embedding_layer.unembed)
-                else:
-                    if config.tie_embeddings:
-                        # Technically we can support this mode, just need to
-                        # copy tensors across GPUs then. But let's implement it
-                        # once/if needed.
-                        self.logger.info("Ignoring tie_embeddings for now.")
-                    self.unembed = VocabParallelUnembedding(config)
+        # with torch.device(self.block_idx_to_device[0]):
+        #     with torch.cuda.device(self.block_idx_to_device[0]):
+        self.norm = RMSNorm(config) if config.get("final_norm", True) else None
+        if config.tie_embeddings:
+            # Lambda usage is to be able to use forward() on caller side, which in
+            # turn is needed for PyTorch hooks to work properly.
+            self.unembed = Lambda(self.embedding_layer.unembed)
+        else:
+            if config.tie_embeddings:
+                # Technically we can support this mode, just need to
+                # copy tensors across GPUs then. But let's implement it
+                # once/if needed.
+                self.logger.info("Ignoring tie_embeddings for now.")
+            self.unembed = VocabParallelUnembedding(config)
 
         self.logger.info("Initialized model")
 
