@@ -18,7 +18,7 @@ prompt = "ATGGCGA"           # 8-mer DNA seed
 tokens = tok(prompt, return_tensors="pt").to(model.device)
 with torch.no_grad():
     out = model.generate(
-            **tokens,
+            input_ids=tokens['input_ids'],
             max_new_tokens=64,
             temperature=0.8,
             do_sample=True)
