@@ -700,8 +700,10 @@ class StripedHyena(nn.Module):
         if self.print_activations:
             activations_logger.info(f"pre norm: {x}, {x.min()}, {x.max()}")
 
-        # By convention, we return results on the first device
-        x = x.to(self.block_idx_to_device[0])
+        # By convention, this line used to return results on the first device.
+        # Since we're systematically ridding this code of custom device
+        # management, it's no longer needed.
+        # x = x.to(self.block_idx_to_device[0])
         x = self.norm(x)
 
         if self.print_activations:
