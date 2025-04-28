@@ -104,17 +104,29 @@ class Evo2ForCausalLM(Evo2PreTrainedModel):
                 past_key_values = self.backbone.initialize_inference_params()
                 batch_size = input_ids.shape[0]
                 past_key_values["mha"].max_batch_size = batch_size
-                past_key_values["hyena"].max_batch_size = batch_size
+                # This line is inherited from Together's HF code. It needs to
+                # change for Evo 2 (specifically, we need to access hcl, hcm and
+                # hcs instead).
+                # past_key_values["hyena"].max_batch_size = batch_size
+                past_key_values["hcl"].max_batch_size = batch_size
+                past_key_values["hcm"].max_batch_size = batch_size
+                past_key_values["hcs"].max_batch_size = batch_size
             else:
                 seqlen_offset = past_key_values["mha"].seqlen_offset
                 if seqlen_offset == 0:
                     # second loop through generate will have prompt_len + 1 as seqlen
                     seqlen_offset = input_ids.shape[-1] - 1
-                    past_key_values["hyena"].seqlen_offset = seqlen_offset
+                    # past_key_values["hyena"].seqlen_offset = seqlen_offset
+                    past_key_values["hcl"].seqlen_offset = seqlen_offset
+                    past_key_values["hcm"].seqlen_offset = seqlen_offset
+                    past_key_values["hcs"].seqlen_offset = seqlen_offset
                     past_key_values["mha"].seqlen_offset = seqlen_offset
                 else:
                     past_key_values["mha"].seqlen_offset += 1
-                    past_key_values["hyena"].seqlen_offset += 1
+                    # past_key_values["hyena"].seqlen_offset += 1
+                    past_key_values["hcl"].seqlen_offset += 1
+                    past_key_values["hcs"].seqlen_offset += 1
+                    past_key_values["hcm"].seqlen_offset += 1
 
                 inputs = input_ids[
                     :,
