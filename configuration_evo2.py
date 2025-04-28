@@ -86,6 +86,7 @@ class Evo2Config(PretrainedConfig):
         log_intermediate_values: bool = False,
         # === Misc. ===
         hyena_flip_x1x2: bool = False,
+        use_cache: bool = True,
         **kwargs,
     ) -> None:
         # Provide sane defaults for the (possibly mutable) index lists.
