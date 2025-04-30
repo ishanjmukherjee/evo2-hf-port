@@ -421,13 +421,20 @@ class ParallelGatedConvBlock(nn.Module):
         # For posterity/debugging: TELinear can be easily replaced by
         # nn.Linear(config.hidden_size, 3 * config.hidden_size, bias=config.qkv_proj_bias).to(dtype=dtype)
         # which sometimes is very useful when debugging FP8.
-        self.projections = TELinear(
+        # Ishan: replacing TELinear with nn.Linear to get meta tensor loading to
+        # behave.
+        # self.projections = TELinear(
+        #     config.hidden_size,
+        #     3 * config.hidden_size,
+        #     bias=config.qkv_proj_bias,
+        #     init_method=torch.nn.init.xavier_uniform_,
+        #     use_fp8=config.get("use_fp8_input_projections", False),
+        # )
+        self.projections = nn.Linear(
             config.hidden_size,
             3 * config.hidden_size,
             bias=config.qkv_proj_bias,
-            init_method=torch.nn.init.xavier_uniform_,
-            use_fp8=config.get("use_fp8_input_projections", False),
-        )
+        ).to(dtype=dtype)
 
         self.out_filter_dense = nn.Linear(config.hidden_size, config.hidden_size, bias=config.hyena_out_proj_bias).to(
             dtype
