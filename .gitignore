@@ -1,5 +1,4 @@
 *.pt
 __pycache__/
 *.log
-*.safetensors
-download-evo2-7b-pt.py
+*.safetensors filter=lfs diff=lfs merge=lfs -text
