@@ -32,8 +32,8 @@ def rename_key(key: str) -> str | None:
 
     # Handle embedding layer
     if key == "embedding_layer.weight":
-        # Target key in modeling_evo2.py: backbone.embedding_layer.word_embeddings.weight
-        return "backbone.embedding_layer.word_embeddings.weight"
+        # Target key in modeling_evo2.py: backbone.embedding_layer.weight
+        return "backbone.embedding_layer.weight"
 
     # Handle final norm
     if key == "norm.scale":
