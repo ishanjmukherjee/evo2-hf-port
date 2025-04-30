@@ -37,7 +37,7 @@ from tqdm import tqdm
 from .attention import MHA
 
 try:
-    from vortex.model.positional_embeddings import swap_mha_rope
+    from .positional_embeddings import swap_mha_rope
 except ImportError:
     "could not import swap_mha_rope from src.positional_embeddings"
 
