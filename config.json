@@ -89,7 +89,7 @@
   "max_seqlen": 1048576,
   "max_batch_size": 1,
   "final_norm": true,
-  "use_flash_attn": true,
+  "use_flash_attn": false,
   "use_flash_rmsnorm": false,
   "use_flash_depthwise": false,
   "use_flashfft": false,
