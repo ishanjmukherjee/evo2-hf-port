@@ -2,3 +2,4 @@
 __pycache__/
 *.log
 *.safetensors
+download-evo2-7b-pt.py
