@@ -31,7 +31,7 @@ model = AutoModelForCausalLM.from_pretrained(
             )
 
 # quick smoke-test
-prompt = "ATGGCGA"           # 8-mer DNA seed
+prompt = "ATGGCGAAAACGTGGCTCGTCCGGTAGGGATCTGGAAACAATTGTAGACAGTTCCGAGTTGTCAAGGGCCA"
 tokens = tok(prompt, return_tensors="pt").to(model.device)
 with torch.no_grad():
     out = model.generate(
