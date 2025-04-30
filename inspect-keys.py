@@ -70,20 +70,23 @@ import torch, warnings, json, pathlib
 from transformers.models.auto.tokenization_auto import AutoTokenizer
 from transformers.models.auto.modeling_auto import AutoModelForCausalLM
 
-# root = pathlib.Path(".")
-# print("Loading tokenizer…")
-# tok   = AutoTokenizer.from_pretrained(root, trust_remote_code=True)
+root = pathlib.Path(".")
+print("Loading tokenizer…")
+tok   = AutoTokenizer.from_pretrained(root, trust_remote_code=True)
 
-# print("Loading model… (this takes ~30 s on first run)")
-# model = AutoModelForCausalLM.from_pretrained(
-#             root,
-#             torch_dtype="auto",          # uses bf16/fp16 if your GPU supports it
-#             device_map="auto",           # spreads across multiple GPUs if present
-#             trust_remote_code=True)
-# hf_keys = set(model.state_dict().keys())
-# print("\n--- HF Model Keys ---")
-# for k in sorted(list(hf_keys)):
-#     print(k)
+print("Loading model… (this takes ~30 s on first run)")
+model = AutoModelForCausalLM.from_pretrained(
+            root,
+            torch_dtype="auto",          # uses bf16/fp16 if your GPU supports it
+            device_map="auto",           # spreads across multiple GPUs if present
+            trust_remote_code=True)
+hf_keys = set(model.state_dict().keys())
+
+# Print HF model keys
+print("\n--- HF Model Keys ---")
+for k in sorted(list(hf_keys)):
+    print(k)
+print("\n--- End HF Model Keys ---")
 
 ROOT = pathlib.Path(".")
 CKPT_PATH = ROOT / "model.safetensors"
@@ -91,24 +94,21 @@ CKPT_PATH = ROOT / "model.safetensors"
 ckpt_keys = set()
 if CKPT_PATH.exists():
     try:
+        # Print checkpoint keys
         print("\nLoading checkpoint keys...")
         ckpt = safetensors.torch.load_file(CKPT_PATH, device="cpu")
         ckpt_keys = set(ckpt.keys())
-        # print("\n--- Checkpoint Keys ---")
-        # for k in sorted(list(ckpt_keys)):
-        #     print(k)
-        # print("\n--- End Checkpoint Keys ---")
+        print("\n--- Checkpoint Keys ---")
+        for k in sorted(list(ckpt_keys)):
+            print(k)
+        print("\n--- End Checkpoint Keys ---")
 
-        non_tensors = {}
-        for k, v in ckpt.items():
-            if not isinstance(v, torch.Tensor):
-                non_tensors[k] = type(v)
+        print("\nKeys in HF model but not in checkpoint:")
+        for k in sorted(list(hf_keys - ckpt_keys)):
+            print(k)
 
-        if non_tensors:
-            print("\nWARNING: Found non-tensor objects in model.safetensors!")
-            for key, obj_type in non_tensors.items():
-                print(f"  Key: '{key}', Type: {obj_type}")
-        else:
-            print("\nAll objects in model.safetensors are Tensors.")
+        print("\nKeys in checkpoint but not in HF model:")
+        for k in sorted(list(ckpt_keys - hf_keys)):
+            print(k)
     except Exception as e:
         print(f"\nError loading checkpoint {CKPT_PATH}: {e}", file=sys.stderr)
