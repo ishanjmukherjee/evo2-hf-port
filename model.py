@@ -749,7 +749,8 @@ class StripedHyena(nn.Module):
                         f"pre block {block_idx} activation_diff: {activation_diff.max()}, {activation_diff.mean()}"
                     )
 
-            x = self.cross_device_transfer(x, block_idx)
+            # Ishan: commenting out now-redundant manual device management
+            # x = self.cross_device_transfer(x, block_idx)
             x, _ = block(x, inference_params=inference_params)
 
             if self.print_activations:
@@ -777,7 +778,8 @@ class StripedHyena(nn.Module):
                         f"pre block {block_idx} activation_diff: {activation_diff.max()}, {activation_diff.mean()}"
                     )
 
-            x = self.cross_device_transfer(x, block_idx)
+            # Ishan: commenting out now-redundant manual device management
+            # x = self.cross_device_transfer(x, block_idx)
             x, _ = block(x, inference_params=None, padding_mask=padding_mask)
 
             if self.print_activations:
