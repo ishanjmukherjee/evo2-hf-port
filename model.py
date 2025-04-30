@@ -641,26 +641,26 @@ class StripedHyena(nn.Module):
         # layers_per_gpu = math.ceil(config.num_layers / num_gpus)
         # self.logger.info(f"Distributing across {num_gpus} GPUs, approximately {layers_per_gpu} layers per GPU")
 
-        # for layer_idx in tqdm(range(config.num_layers)):
-        #     # Determine which GPU should handle this layer
-        #     device_idx = min(layer_idx // layers_per_gpu, num_gpus - 1)
-        #     device = f"cuda:{device_idx}" if torch.cuda.is_available() else "cpu"
+        for layer_idx in tqdm(range(config.num_layers)):
+            # Determine which GPU should handle this layer
+            # device_idx = min(layer_idx // layers_per_gpu, num_gpus - 1)
+            # device = f"cuda:{device_idx}" if torch.cuda.is_available() else "cpu"
 
-        #     with torch.device(device):
-        #         # TELinear uses `device="cuda"` device to allocate empty bias
-        #         # tensor. This makes sure that the empty tensor is allocated on the
-        #         # correct device. (torch.device(), unlike torch.cuda.device(),
-        #         # doesn't override current CUDA device.)
-        #         with torch.cuda.device(device):
-        #             block = get_block(config, layer_idx, flash_fft=self.flash_fft)
-        #             move_to_device(block, device)
+            # with torch.device(device):
+                # TELinear uses `device="cuda"` device to allocate empty bias
+                # tensor. This makes sure that the empty tensor is allocated on the
+                # correct device. (torch.device(), unlike torch.cuda.device(),
+                # doesn't override current CUDA device.)
+                # with torch.cuda.device(device):
+            block = get_block(config, layer_idx, flash_fft=self.flash_fft)
+            # move_to_device(block, device)
 
-        #     self.blocks.append(block)
-        #     self.block_idx_to_device[layer_idx] = device
-        #     self.logger.info(f"Assigned {layer_idx=} to {device=}")
-        #     self.logger.info(
-        #         f"Parameter count for block {layer_idx}: {sum(p.numel() for p in self.blocks[-1].parameters())}"
-        #     )
+            self.blocks.append(block)
+            # self.block_idx_to_device[layer_idx] = device
+            # self.logger.info(f"Assigned {layer_idx=} to {device=}")
+            # self.logger.info(
+            #     f"Parameter count for block {layer_idx}: {sum(p.numel() for p in self.blocks[-1].parameters())}"
+            # )
 
         # with torch.device(self.block_idx_to_device[0]):
         #     with torch.cuda.device(self.block_idx_to_device[0]):
