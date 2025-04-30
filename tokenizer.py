@@ -71,13 +71,21 @@ class ByteTokenizer(PreTrainedTokenizer):
 
     def _decode(self, token_ids: List[int], **kwargs) -> str:
 
-        indices = np.asarray(token_ids, dtype=np.uint8)
+        # Comment this out because tobytes() is interpreted literally
+        # indices = np.asarray(token_ids, dtype=np.uint8)
 
-        return (
-            indices.clip(min=32, max=self.vocab_size, out=indices)
-            .tobytes()
-            .decode('utf-8')
-        )
+        # return (
+        #     indices.clip(min=32, max=self.vocab_size, out=indices)
+        #     .tobytes()
+        #     .decode('utf-8')
+        # )
+
+        # Use the existing method to convert each ID back to its character.
+        # This method implicitly handles clamping based on vocab_size.
+        tokens = [self._convert_id_to_token(token_id) for token_id in token_ids]
+
+        # Join the resulting characters into a single string.
+        return "".join(tokens)
 
     def _encode_plus(self, text: str, **kwargs) -> BatchEncoding:
 
